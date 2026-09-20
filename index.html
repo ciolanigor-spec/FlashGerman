@@ -454,28 +454,35 @@
     }
 
     function renderCard() {
-      const cardEl = document.getElementById('card');
-      cardEl.classList.remove('flipped');
+  const cardEl = document.getElementById('card');
+  cardEl.classList.remove('flipped');
 
-      if (activeQueue.length === 0) {
-        document.getElementById('frontWord').textContent = "All Done! 🎉";
-        document.getElementById('cardRank').textContent = "-";
-        return;
-      }
+  if (activeQueue.length === 0) {
+    document.getElementById('frontWord').textContent = "All Done! 🎉";
+    document.getElementById('cardRank').textContent = "-";
+    return;
+  }
 
-      if (currentIndex >= activeQueue.length) currentIndex = 0;
-      if (currentIndex < 0) currentIndex = activeQueue.length - 1;
+  if (currentIndex >= activeQueue.length) currentIndex = 0;
+  if (currentIndex < 0) currentIndex = activeQueue.length - 1;
 
-      const word = activeQueue[currentIndex];
-      document.getElementById('frontWord').textContent = word.Wort || word.word;
-      document.getElementById('cardRank').textContent = `Rank #${word.Rank || (currentIndex + 1)}`;
-      document.getElementById('cardLevel').textContent = word.Level || 'A1-B1';
+  const item = activeQueue[currentIndex];
 
-      document.getElementById('backTranslation').textContent = word.Translation || word.translation;
-      document.getElementById('backExample').textContent = word.Example || '';
-      document.getElementById('backRank').textContent = `Rank #${word.Rank || (currentIndex + 1)}`;
-      document.getElementById('backLevel').textContent = word.Level || 'A1-B1';
-    }
+  // FRONT OF CARD
+  document.getElementById('frontWord').textContent = item.Wort || '—';
+  document.getElementById('cardRank').textContent = `Rank #${item.Rank || (currentIndex + 1)}`;
+  document.getElementById('cardLevel').textContent = item.Sprachniveau_Est || 'A1-B1';
+
+  // BACK OF CARD (Mapped to your exact new CSV columns)
+  const explanation = item.Erklärung || item.DWDS_Erklärung || 'Keine Erklärung verfügbar';
+  const wordType = item.Wortart ? `[${item.Wortart}] ` : '';
+  const synonyms = item.Synonyme ? `\nSynonyme: ${item.Synonyme}` : '';
+
+  document.getElementById('backTranslation').textContent = `${wordType}${explanation}`;
+  document.getElementById('backExample').textContent = synonyms;
+  document.getElementById('backRank').textContent = `Rank #${item.Rank || (currentIndex + 1)}`;
+  document.getElementById('backLevel').textContent = item.Sprachniveau_Est || 'A1-B1';
+}
 
     function flipCard() {
       document.getElementById('card').classList.toggle('flipped');
@@ -536,27 +543,29 @@
       if (tab === 'directory') renderDirectory();
     }
 
-    function renderDirectory() {
-      const filter = document.getElementById('dirSearch').value.toLowerCase();
-      const container = document.getElementById('directoryList');
-      container.innerHTML = '';
+   function renderDirectory() {
+  const filter = document.getElementById('dirSearch').value.toLowerCase();
+  const container = document.getElementById('directoryList');
+  container.innerHTML = '';
 
-      vocabulary
-        .filter(item => (item.Wort || '').toLowerCase().includes(filter))
-        .slice(0, 50)
-        .forEach(item => {
-          const status = userProgress[item.Wort] || 'unseen';
-          const div = document.createElement('div');
-          div.className = 'directory-item';
-          div.innerHTML = `
-            <div>
-              <strong>${item.Wort}</strong> <small>(${item.Translation})</small>
-            </div>
-            <span class="badge">${status}</span>
-          `;
-          container.appendChild(div);
-        });
-    }
+  vocabulary
+    .filter(item => (item.Wort || '').toLowerCase().includes(filter))
+    .slice(0, 50)
+    .forEach(item => {
+      const status = userProgress[item.Wort] || 'unseen';
+      const explanation = item.Erklärung || item.DWDS_Erklärung || '';
+      const div = document.createElement('div');
+      div.className = 'directory-item';
+      div.innerHTML = `
+        <div>
+          <strong>${item.Wort}</strong> <small>(${item.Wortart || ''})</small>
+          <div style="font-size:0.8rem; color: var(--text-muted);">${explanation}</div>
+        </div>
+        <span class="badge">${status}</span>
+      `;
+      container.appendChild(div);
+    });
+}
 
     /* Profile Modal Logic */
     function openProfileModal() { document.getElementById('profileModal').style.display = 'flex'; }
