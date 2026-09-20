@@ -1,0 +1,8 @@
+.idea/
+__pycache__/
+
+# Large source dumps and compressed dataset copies
+dewiktionary-raw-wiktextract-data.jsonl
+dewiktionary-raw-wiktextract-data.jsonl.gz
+kaikki.org-dictionary-German.jsonl
+kaikki.org-dictionary-German.jsonl.gz
